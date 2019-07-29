@@ -7,7 +7,6 @@ import spoon.reflect.declaration.CtType;
 
 public class Main {
 
-// Unfortunately, MavenLauncher doesn't seem to work for Java 11 projects, so we have to use regular launcher
 //    private final static String PATH_TO_SOURCES = "/home/<user>/workspace/latexdraw-4.0-beta2/src/main/java/net/sf/latexdraw";
 
     public static void main(String[] args) {
@@ -15,11 +14,7 @@ public class Main {
         if (args.length != 1)
             return;
 
-        Launcher launcher = new Launcher();
-        launcher.addInputResource(args[0]);
-
-        launcher.buildModel();
-        CtModel model = launcher.getModel();
+        CtModel model = load(args[0]);
 
         // list all packages of the model
         for(CtPackage p : model.getAllPackages()) {
@@ -31,6 +26,13 @@ public class Main {
         }
 
         return;
+    }
+
+    public static CtModel load(String pathToSource){
+        Launcher launcher = new Launcher();
+        launcher.addInputResource(pathToSource);
+        launcher.buildModel();
+        return launcher.getModel();
     }
 
 
