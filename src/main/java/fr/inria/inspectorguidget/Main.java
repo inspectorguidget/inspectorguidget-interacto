@@ -1,39 +1,29 @@
 package fr.inria.inspectorguidget;
 
+import fr.inria.inspectorguidget.processor.NodeBinderProcessor;
 import spoon.Launcher;
-import spoon.reflect.CtModel;
-import spoon.reflect.declaration.CtPackage;
-import spoon.reflect.declaration.CtType;
+import spoon.SpoonAPI;
+
 
 public class Main {
 
 //    private final static String PATH_TO_SOURCES = "/home/<user>/workspace/latexdraw-4.0-beta2/src/main/java/net/sf/latexdraw";
-
+//  /home/lrichoux/Documents/inspectorguidget/Resources/latexdraw-4.0-beta2/src/main/java/net/sf/latexdraw/instrument
     public static void main(String[] args) {
+
+        SpoonAPI spoon = new Launcher();
 
         if (args.length != 1)
             return;
 
-        CtModel model = load(args[0]);
+        spoon.addInputResource(args[0]);
 
-        // list all packages of the model
-        for(CtPackage p : model.getAllPackages()) {
-            System.out.println("package: "+p.getQualifiedName());
-        }
-        // list all classes of the model
-        for(CtType<?> s : model.getAllTypes()) {
-            System.out.println("class: "+s.getQualifiedName());
-        }
+        NodeBinderProcessor nbProcessor = new NodeBinderProcessor();
+
+        spoon.addProcessor(nbProcessor);
+
+        spoon.run();
 
         return;
     }
-
-    public static CtModel load(String pathToSource){
-        Launcher launcher = new Launcher();
-        launcher.addInputResource(pathToSource);
-        launcher.buildModel();
-        return launcher.getModel();
-    }
-
-
 }
