@@ -12,11 +12,11 @@ import spoon.reflect.visitor.filter.AbstractFilter;
 import java.util.HashSet;
 import java.util.Set;
 
-public class NodeBinderProcessor extends AbstractProcessor<CtInvocation> {
+public class BinderInvocationProcessor extends AbstractProcessor<CtInvocation> {
 
     private final @NotNull Set<CtInvocation<?>> binders;
 
-    public NodeBinderProcessor() {
+    public BinderInvocationProcessor() {
         binders = new HashSet<>();
     }
 
