@@ -3,20 +3,17 @@ package fr.inria.inspectorguidget.processor;
 import org.jetbrains.annotations.NotNull;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.path.CtRole;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class BinderClassProcessor extends AbstractProcessor<CtClass> {
 
-    private final @NotNull Set<CtClass> listClass;
+    private final @NotNull Set<CtClass> setClass;
 
     public BinderClassProcessor() {
-        this.listClass = new HashSet<>();
+        this.setClass = new HashSet<>();
     }
 
     @Override
@@ -33,10 +30,10 @@ public class BinderClassProcessor extends AbstractProcessor<CtClass> {
 
     @Override
     public void process(CtClass clazz){
-        listClass.add(clazz);
+        setClass.add(clazz);
     }
 
     public Set<CtClass> getListClass() {
-        return listClass;
+        return setClass;
     }
 }

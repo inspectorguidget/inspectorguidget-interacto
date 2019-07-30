@@ -15,6 +15,7 @@ import java.util.Set;
 public class BinderInvocationProcessor extends AbstractProcessor<CtInvocation> {
 
     private final @NotNull Set<CtInvocation<?>> binders;
+    private int nb = 0;
 
     public BinderInvocationProcessor() {
         binders = new HashSet<>();
@@ -71,6 +72,8 @@ public class BinderInvocationProcessor extends AbstractProcessor<CtInvocation> {
 
     @Override
     public void process(final CtInvocation invoc) {
+        nb++;
+        System.out.println(nb);
         binders.add(invoc);
     }
 
