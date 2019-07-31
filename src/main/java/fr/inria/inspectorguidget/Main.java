@@ -1,7 +1,6 @@
 package fr.inria.inspectorguidget;
 
-import fr.inria.inspectorguidget.processor.BinderClassProcessor;
-import fr.inria.inspectorguidget.processor.BinderInvocationProcessor;
+import fr.inria.inspectorguidget.processor.*;
 import spoon.Launcher;
 import spoon.SpoonAPI;
 
@@ -21,9 +20,11 @@ public class Main {
 
         BinderInvocationProcessor binderInvocationProcessor = new BinderInvocationProcessor();
         BinderClassProcessor binderClassProcessor = new BinderClassProcessor();
+        CommandProcessor commandProcessor = new CommandProcessor();
 
-        spoon.addProcessor(binderInvocationProcessor);
-        spoon.addProcessor(binderClassProcessor);
+        //spoon.addProcessor(binderInvocationProcessor);
+        //spoon.addProcessor(binderClassProcessor);
+        spoon.addProcessor(commandProcessor);
 
         spoon.run();
 
