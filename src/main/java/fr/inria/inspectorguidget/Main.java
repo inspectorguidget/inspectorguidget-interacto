@@ -3,7 +3,7 @@ package fr.inria.inspectorguidget;
 import fr.inria.inspectorguidget.processor.*;
 import spoon.Launcher;
 import spoon.SpoonAPI;
-
+import spoon.reflect.code.CtInvocation;
 
 public class Main {
 
@@ -22,11 +22,18 @@ public class Main {
         BinderClassProcessor binderClassProcessor = new BinderClassProcessor();
         CommandProcessor commandProcessor = new CommandProcessor();
 
-        //spoon.addProcessor(binderInvocationProcessor);
-        //spoon.addProcessor(binderClassProcessor);
+        spoon.addProcessor(binderInvocationProcessor);
+        spoon.addProcessor(binderClassProcessor);
         spoon.addProcessor(commandProcessor);
 
         spoon.run();
+
+
+        CommandExtractor commandExtractor = new CommandExtractor(commandProcessor.getCommandClass());
+
+        for(CtInvocation invocation: binderInvocationProcessor.getNodeBinders()){
+            commandExtractor.extractCommand(invocation);
+        }
 
         return;
     }
