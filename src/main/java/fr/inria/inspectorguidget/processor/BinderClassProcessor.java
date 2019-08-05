@@ -29,9 +29,7 @@ public class BinderClassProcessor extends AbstractProcessor<CtClass> {
     }
 
     @Override
-    public void process(CtClass clazz){
-        setClass.add(clazz);
-    }
+    public void process(CtClass clazz){ setClass.add(clazz); }
 
     public Set<CtClass> getListClass() {
         return setClass;

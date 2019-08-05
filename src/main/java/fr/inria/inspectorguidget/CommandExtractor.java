@@ -1,15 +1,14 @@
 package fr.inria.inspectorguidget;
 
-
-import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLambda;
 import spoon.reflect.code.CtLocalVariable;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.path.CtRole;
-import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.filter.AbstractFilter;
 import spoon.support.reflect.code.CtVariableReadImpl;
 
@@ -52,7 +51,6 @@ public class CommandExtractor {
         CtElement supplier = args.size()==2? args.get(1): args.get(0);
 
         // CtLabmda or CtFieldRead (variable)
-
         if(supplier instanceof CtLambda)
             extractCommandLambda((CtLambda) supplier);
         else if (supplier instanceof CtVariableReadImpl)
@@ -65,7 +63,9 @@ public class CommandExtractor {
     }
 
     public void extractCommandLambda(CtLambda lambda){
-        List<CtConstructorCall> commands;
+        System.out.println(lambda);
+        // On a frocément un lambda mais pas forcément un constructor call à l'intérieur
+        /*List<CtConstructorCall> commands;
         try {
 
             commands = lambda.getElements(new AbstractFilter<CtConstructorCall>() {
@@ -77,17 +77,15 @@ public class CommandExtractor {
                         if(isInCommand(typeRef.getSimpleName()))
                             return true;
                     }
-                    System.out.println("pas trouve la COMMANDE");
                     return false;
                 }
             });
 
             CtConstructorCall command = commands.get(0); // command to return
-           System.out.println(command);
 
         } catch (Exception e){
             logr.log(Level.WARNING, "Problem identifying command of widget" );
-        }
+        }*/
     }
 
     public void extractCommandVariable(CtVariableReadImpl variable){
@@ -117,6 +115,26 @@ public class CommandExtractor {
                 return true;
         }
         return false;
+    }
+
+    public void extractCommand(CtClass clazz){
+
+        //admit only one constructor and one lambda inside
+        CtConstructor constructor = clazz.getElements(new AbstractFilter<CtConstructor>() {
+            @Override
+            public boolean matches(CtConstructor element) {
+                return true;
+            }
+        }).get(0);
+
+        CtLambda supplier = clazz.getElements(new AbstractFilter<CtLambda>() {
+            @Override
+            public boolean matches(final CtLambda lambda) {
+                return lambda.hasParent(constructor);
+            }
+        }).get(0);
+
+        extractCommandLambda(supplier);
     }
 
 }

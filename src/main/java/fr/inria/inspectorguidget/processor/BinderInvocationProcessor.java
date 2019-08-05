@@ -5,11 +5,13 @@ import org.jetbrains.annotations.NotNull;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.visitor.filter.AbstractFilter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class BinderInvocationProcessor extends AbstractProcessor<CtInvocation> {

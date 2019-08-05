@@ -4,11 +4,10 @@ import fr.inria.inspectorguidget.processor.*;
 import spoon.Launcher;
 import spoon.SpoonAPI;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.declaration.CtClass;
 
 public class Main {
 
-//    private final static String PATH_TO_SOURCES = "/home/<user>/workspace/latexdraw-4.0-beta2/src/main/java/net/sf/latexdraw";
-//  /home/lrichoux/Documents/inspectorguidget/Resources/latexdraw-4.0-beta2/src/main/java/net/sf/latexdraw/instrument
     public static void main(String[] args) {
 
         SpoonAPI spoon = new Launcher();
@@ -28,11 +27,19 @@ public class Main {
 
         spoon.run();
 
-
         CommandExtractor commandExtractor = new CommandExtractor(commandProcessor.getCommandClass());
 
+        /*
+        //extractCommand, widget & interaction of a binder interaction
         for(CtInvocation invocation: binderInvocationProcessor.getNodeBinders()){
             commandExtractor.extractCommand(invocation);
+        }
+        */
+
+        //extractCommand, widget & interaction of a binder class
+        for(CtClass clazz : binderClassProcessor.getListClass()){
+            commandExtractor.extractCommand(clazz);
+            System.out.println("-------------------------------");
         }
 
         return;
