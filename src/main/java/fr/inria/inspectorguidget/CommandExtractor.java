@@ -1,5 +1,6 @@
 package fr.inria.inspectorguidget;
 
+import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLambda;
 import spoon.reflect.code.CtLocalVariable;
@@ -8,6 +9,7 @@ import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.path.CtRole;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.filter.AbstractFilter;
 import spoon.support.reflect.code.CtVariableReadImpl;
@@ -63,16 +65,16 @@ public class CommandExtractor {
     }
 
     public void extractCommandLambda(CtLambda lambda){
-        System.out.println(lambda);
-        // On a frocément un lambda mais pas forcément un constructor call à l'intérieur
-        /*List<CtConstructorCall> commands;
+
+        // Here, searching for a constructor call, sometimes there's no constructor call
+        List<CtConstructorCall> commands = new ArrayList<>();
         try {
 
             commands = lambda.getElements(new AbstractFilter<CtConstructorCall>() {
                 @Override
                 public boolean matches(final CtConstructorCall constructorCall) {
 
-                    Set<CtTypeReference<?>> typeReferences = constructorCall.getExecutable().getReferencedTypes();
+                    Set<CtTypeReference<?>> typeReferences = constructorCall.getReferencedTypes();
                     for(CtTypeReference<?> typeRef :typeReferences){
                         if(isInCommand(typeRef.getSimpleName()))
                             return true;
@@ -81,11 +83,11 @@ public class CommandExtractor {
                 }
             });
 
-            CtConstructorCall command = commands.get(0); // command to return
+             System.out.println(commands.get(0)); // command to return
 
-        } catch (Exception e){
-            logr.log(Level.WARNING, "Problem identifying command of widget" );
-        }*/
+        } catch (Exception e) {
+            logr.log(Level.WARNING, "Problem identifying command of widget");
+        }
     }
 
     public void extractCommandVariable(CtVariableReadImpl variable){
@@ -119,22 +121,33 @@ public class CommandExtractor {
 
     public void extractCommand(CtClass clazz){
 
-        //admit only one constructor and one lambda inside
-        CtConstructor constructor = clazz.getElements(new AbstractFilter<CtConstructor>() {
+        //get all lambda within constructor
+        List<CtLambda> lambdaList = clazz.getElements(new AbstractFilter<CtLambda>() {
             @Override
-            public boolean matches(CtConstructor element) {
-                return true;
-            }
-        }).get(0);
+            public boolean matches(CtLambda element) {
+                boolean construct = false;
+                CtConstructor constructor = element.getParent(CtConstructor.class);
 
-        CtLambda supplier = clazz.getElements(new AbstractFilter<CtLambda>() {
-            @Override
-            public boolean matches(final CtLambda lambda) {
-                return lambda.hasParent(constructor);
-            }
-        }).get(0);
+                if(constructor != null)
+                    construct =  true;
 
-        extractCommandLambda(supplier);
+                //check if lambda return a command
+                boolean command = false;
+
+                for(CtTypeReference<?> typeReference: element.getReferencedTypes()) {
+                    if (isInCommand(typeReference.getSimpleName())){
+                        command = true;
+                        break;
+                    }
+                }
+                return construct && command ;
+            }
+        });
+
+        if(lambdaList.size() == 1)
+            extractCommandLambda(lambdaList.get(0));
+        else
+            logr.log(Level.WARNING, "unable to identify command in lambda");
     }
 
 }

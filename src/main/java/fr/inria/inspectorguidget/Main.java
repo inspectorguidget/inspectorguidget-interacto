@@ -39,7 +39,6 @@ public class Main {
         //extractCommand, widget & interaction of a binder class
         for(CtClass clazz : binderClassProcessor.getListClass()){
             commandExtractor.extractCommand(clazz);
-            System.out.println("-------------------------------");
         }
 
         return;
