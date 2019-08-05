@@ -1,5 +1,6 @@
 package fr.inria.inspectorguidget;
 
+import fr.inria.inspectorguidget.extractor.CommandExtractor;
 import fr.inria.inspectorguidget.processor.*;
 import spoon.Launcher;
 import spoon.SpoonAPI;
@@ -29,16 +30,17 @@ public class Main {
 
         CommandExtractor commandExtractor = new CommandExtractor(commandProcessor.getCommandClass());
 
-        /*
+
         //extractCommand, widget & interaction of a binder interaction
         for(CtInvocation invocation: binderInvocationProcessor.getNodeBinders()){
             commandExtractor.extractCommand(invocation);
+            System.out.println("-----------------------------");
         }
-        */
 
         //extractCommand, widget & interaction of a binder class
         for(CtClass clazz : binderClassProcessor.getListClass()){
             commandExtractor.extractCommand(clazz);
+
         }
 
         return;

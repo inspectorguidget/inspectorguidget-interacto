@@ -1,16 +1,12 @@
-package fr.inria.inspectorguidget;
+package fr.inria.inspectorguidget.extractor;
 
-import spoon.reflect.code.CtConstructorCall;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLambda;
-import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.path.CtRole;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.filter.AbstractFilter;
 import spoon.support.reflect.code.CtVariableReadImpl;
 
@@ -41,39 +37,39 @@ public class CommandExtractor {
             children = invoc.getDirectChildren();
         }
 
-        // get Arguments of binder:
-        List<CtElement> args = new ArrayList<>();
-        for (CtElement child : children){
-            if(child.getRoleInParent().equals(CtRole.ARGUMENT)){
-                args.add(child);
-            }
+        // Warning if the binder is anonCmdBinder, must extract the whole block in lambda
+        if(invoc.getExecutable().getSimpleName().compareTo("") == 0){
+            extractAnonCmd(invoc);
         }
+        else {
+            // get Arguments of binder:
+            List<CtElement> args = new ArrayList<>();
+            for (CtElement child : children){
+                if(child.getRoleInParent().equals(CtRole.ARGUMENT)){
+                    args.add(child);
+                }
+            }
 
-        //get supplier of command (2 arg in nodeBinder, first in others)
-        CtElement supplier = args.size()==2? args.get(1): args.get(0);
+            //get supplier of command (2 arg in nodeBinder, first in others)
+            CtElement supplier = args.size()==2? args.get(1): args.get(0);
 
-        // CtLabmda or CtFieldRead (variable)
-        if(supplier instanceof CtLambda)
-            extractCommandLambda((CtLambda) supplier);
-        else if (supplier instanceof CtVariableReadImpl)
-            extractCommandVariable((CtVariableReadImpl) supplier);
-        else
-            logr.log(Level.WARNING, "not able to identify command");
-
-        System.out.println("-------------");
-
+            // CtLabmda or CtFieldRead (variable)
+            if(supplier instanceof CtLambda)
+                extractCommandLambda((CtLambda) supplier);
+            else if (supplier instanceof CtVariableReadImpl)
+                extractCommandVariable((CtVariableReadImpl) supplier);
+            else
+                logr.log(Level.WARNING, "not able to identify command");
+        }
     }
 
     public void extractCommandLambda(CtLambda lambda){
 
-        // Here, searching for a constructor call, sometimes there's no constructor call
         List<CtConstructorCall> commands = new ArrayList<>();
         try {
-
             commands = lambda.getElements(new AbstractFilter<CtConstructorCall>() {
                 @Override
                 public boolean matches(final CtConstructorCall constructorCall) {
-
                     Set<CtTypeReference<?>> typeReferences = constructorCall.getReferencedTypes();
                     for(CtTypeReference<?> typeRef :typeReferences){
                         if(isInCommand(typeRef.getSimpleName()))
@@ -148,6 +144,28 @@ public class CommandExtractor {
             extractCommandLambda(lambdaList.get(0));
         else
             logr.log(Level.WARNING, "unable to identify command in lambda");
+    }
+
+    public void extractAnonCmd(CtInvocation invocation){
+
+        List<CtLambda> lambdaList = invocation.getElements(new AbstractFilter<CtLambda>() {
+            @Override
+            public boolean matches(CtLambda element) {
+                return true;
+            }
+        });
+
+        CtLambda lambda = lambdaList.get(0);
+        CtBlock command = null;
+
+        List<CtElement> children = lambda.getDirectChildren();
+        for(CtElement child: children){
+            if (child instanceof CtBlock){
+                command = (CtBlock) child;
+                break;
+            }
+        }
+        System.out.println(command);
     }
 
 }
