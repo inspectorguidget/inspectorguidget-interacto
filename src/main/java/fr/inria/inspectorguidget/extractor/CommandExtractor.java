@@ -1,10 +1,8 @@
 package fr.inria.inspectorguidget.extractor;
 
+import org.malai.command.Command;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtConstructor;
-import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.*;
 import spoon.reflect.path.CtRole;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.AbstractFilter;
@@ -16,15 +14,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class CommandExtractor {
 
     private final Logger logr = Logger.getLogger(CommandExtractor.class.getName());
-    private Set<CtClass> commandClass;
 
-    public CommandExtractor(Set<CtClass> commandClass){
-        this.commandClass = commandClass;
-    }
+    public CommandExtractor(){}
 
     public void extractCommand(CtInvocation invocation){
 
@@ -38,6 +32,7 @@ public class CommandExtractor {
         }
 
         // Warning if the binder is anonCmdBinder, must extract the whole block in lambda
+        assert invoc != null;
         if(invoc.getExecutable().getSimpleName().compareTo("anonCmdBinder") == 0){
             extractAnonCmd(invoc);
         }
@@ -67,15 +62,14 @@ public class CommandExtractor {
         }
     }
 
-    public void extractCommandExecutable(CtExecutableReferenceExpression expression){
+    private void extractCommandExecutable(CtExecutableReferenceExpression expression){
 
         boolean isCommand = false;
-        for(CtTypeReference<?> typeRef : expression.getReferencedTypes()){
-            if(isInCommand(typeRef.getSimpleName())){
+        for(CtTypeReference<?> typeRef : expression.getReferencedTypes())
+            if (isACommand(typeRef)) {
                 isCommand = true;
                 break;
             }
-        }
 
         if(isCommand)
             System.out.println(expression);
@@ -83,19 +77,20 @@ public class CommandExtractor {
             logr.log(Level.WARNING, "can't find command in expression");
     }
 
-    public void extractCommandLambda(CtLambda lambda){
+    private void extractCommandLambda(CtLambda lambda){
 
-        List<CtConstructorCall> commands = new ArrayList<>();
+        List<CtConstructorCall> commands;
         try {
             commands = lambda.getElements(new AbstractFilter<CtConstructorCall>() {
                 @Override
                 public boolean matches(final CtConstructorCall constructorCall) {
                     Set<CtTypeReference<?>> typeReferences = constructorCall.getReferencedTypes();
                     for(CtTypeReference<?> typeRef :typeReferences){
-                        if(isInCommand(typeRef.getSimpleName()))
+                        if(isACommand(typeRef))
                             return true;
                     }
                     return false;
+
                 }
             });
 
@@ -106,7 +101,7 @@ public class CommandExtractor {
         }
     }
 
-    public void extractCommandVariable(CtVariableReadImpl variable){
+    private void extractCommandVariable(CtVariableReadImpl variable){
         CtMethod method = variable.getParent(CtMethod.class);
         CtLambda lambda;
         try {
@@ -126,15 +121,6 @@ public class CommandExtractor {
         }
     }
 
-    private boolean isInCommand(String className){
-
-        for(CtClass myClass: commandClass){
-            if(myClass.getSimpleName().compareTo(className) == 0)
-                return true;
-        }
-        return false;
-    }
-
     public void extractCommand(CtClass clazz){
 
         //get all lambda within constructor
@@ -151,7 +137,7 @@ public class CommandExtractor {
                 boolean command = false;
 
                 for(CtTypeReference<?> typeReference: element.getReferencedTypes()) {
-                    if (isInCommand(typeReference.getSimpleName())){
+                    if (isACommand(typeReference)){
                         command = true;
                         break;
                     }
@@ -163,11 +149,10 @@ public class CommandExtractor {
         if(lambdaList.size() == 1)
             extractCommandLambda(lambdaList.get(0));
         else
-            logr.log(Level.WARNING, "unable to identify command in lambda");
+            logr.log(Level.WARNING, "unable to identify command in class");
     }
 
-    public void extractAnonCmd(CtInvocation invocation){
-
+    private void extractAnonCmd(CtInvocation invocation){
         List<CtLambda> lambdaList = invocation.getElements(new AbstractFilter<CtLambda>() {
             @Override
             public boolean matches(CtLambda element) {
@@ -186,5 +171,9 @@ public class CommandExtractor {
             }
         }
         System.out.println(command);
+    }
+
+    private boolean isACommand(CtTypeReference typeReference){
+        return typeReference.isSubtypeOf(typeReference.getFactory().Type().createReference(Command.class));
     }
 }

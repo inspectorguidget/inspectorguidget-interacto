@@ -34,7 +34,7 @@ public class InteractionExtractor {
     }
 
     public void extractInteraction(CtClass clazz){
-        System.out.println(clazz);
+        System.out.println("Inter : not done for the moment");
     }
 
     public void extractInteractionFromNodeBinder(CtInvocation invocation){
@@ -47,7 +47,7 @@ public class InteractionExtractor {
         }
 
         CtElement interaction = args.get(0); //first arg is interaction
-        System.out.println(interaction);
+        System.out.println("Inter : " + interaction);
     }
 
 }
