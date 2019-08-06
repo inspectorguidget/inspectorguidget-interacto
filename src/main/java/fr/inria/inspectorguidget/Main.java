@@ -35,18 +35,18 @@ public class Main {
 
         //extractCommand & interaction of a binder interaction
         for(CtInvocation invocation: binderInvocationProcessor.getNodeBinders()){
-            interactionExtractor.extractInteraction(invocation);
+            //interactionExtractor.extractInteraction(invocation);
             commandExtractor.extractCommand(invocation);
             System.out.println("-----------------------------");
         }
-
+/*
         //extractCommand, widget & interaction of a binder class
         for(CtClass clazz : binderClassProcessor.getListClass()){
-            interactionExtractor.extractInteraction(clazz);
+            //interactionExtractor.extractInteraction(clazz);
             commandExtractor.extractCommand(clazz);
             System.out.println("------------------------------");
         }
-
+*/
         return;
     }
 }

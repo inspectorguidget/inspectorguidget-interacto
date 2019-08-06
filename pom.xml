@@ -10,14 +10,14 @@
 
     <repositories>
         <repository>
-            <id>mavenInriaSnapshot</id>
-            <name>http://maven.inria.fr-snapshots</name>
-            <url>http://maven.inria.fr/artifactory/malai-public-snapshot</url>
-        </repository>
-        <repository>
             <id>mavenInriaRelease</id>
             <name>http://maven.inria.fr-releases</name>
             <url>http://maven.inria.fr/artifactory/malai-public-release</url>
+        </repository>
+        <repository>
+            <id>mavenInriaSnapshot</id>
+            <name>http://maven.inria.fr-snapshots</name>
+            <url>http://maven.inria.fr/artifactory/malai-public-snapshot</url>
         </repository>
     </repositories>
 
@@ -48,9 +48,21 @@
         </dependency>
 
         <dependency>
+            <groupId>io.interacto</groupId>
+            <artifactId>interacto-javafx</artifactId>
+            <version>3.3</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.malai</groupId>
             <artifactId>malai.core</artifactId>
             <version>3.2-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.malai</groupId>
+            <artifactId>malai.javafx</artifactId>
+            <version>3.0-20180410.013100-553</version>
         </dependency>
 
     </dependencies>

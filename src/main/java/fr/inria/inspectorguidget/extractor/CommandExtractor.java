@@ -1,6 +1,7 @@
 package fr.inria.inspectorguidget.extractor;
 
 import org.malai.command.Command;
+
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
 import spoon.reflect.path.CtRole;
