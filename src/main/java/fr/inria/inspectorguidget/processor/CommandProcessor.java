@@ -1,6 +1,5 @@
 package fr.inria.inspectorguidget.processor;
 
-
 import org.jetbrains.annotations.NotNull;
 import org.malai.command.CommandImpl;
 import spoon.processing.AbstractProcessor;

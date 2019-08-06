@@ -28,7 +28,9 @@ public class Main {
 
         spoon.run();
 
-        CommandExtractor commandExtractor = new CommandExtractor(commandProcessor.getCommandClass());
+
+        // in the list, we only have the commands defined in the project and not the ones defined in the interacto library
+       CommandExtractor commandExtractor = new CommandExtractor(commandProcessor.getCommandClass());
 
 
         //extractCommand, widget & interaction of a binder interaction

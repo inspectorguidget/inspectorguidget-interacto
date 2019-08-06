@@ -38,7 +38,7 @@ public class CommandExtractor {
         }
 
         // Warning if the binder is anonCmdBinder, must extract the whole block in lambda
-        if(invoc.getExecutable().getSimpleName().compareTo("") == 0){
+        if(invoc.getExecutable().getSimpleName().compareTo("anonCmdBinder") == 0){
             extractAnonCmd(invoc);
         }
         else {
@@ -53,14 +53,34 @@ public class CommandExtractor {
             //get supplier of command (2 arg in nodeBinder, first in others)
             CtElement supplier = args.size()==2? args.get(1): args.get(0);
 
-            // CtLabmda or CtFieldRead (variable)
+            // CtLabmda or CtFieldRead (variable) or CtExecutableReferenceExpression
             if(supplier instanceof CtLambda)
                 extractCommandLambda((CtLambda) supplier);
             else if (supplier instanceof CtVariableReadImpl)
                 extractCommandVariable((CtVariableReadImpl) supplier);
-            else
+            else if(supplier instanceof  CtExecutableReferenceExpression)
+                extractCommandExecutable((CtExecutableReferenceExpression) supplier);
+            else{
                 logr.log(Level.WARNING, "not able to identify command");
+            }
+
         }
+    }
+
+    public void extractCommandExecutable(CtExecutableReferenceExpression expression){
+
+        boolean isCommand = false;
+        for(CtTypeReference<?> typeRef : expression.getReferencedTypes()){
+            if(isInCommand(typeRef.getSimpleName())){
+                isCommand = true;
+                break;
+            }
+        }
+
+        if(isCommand)
+            System.out.println(expression);
+        else
+            logr.log(Level.WARNING, "can't find command in expression");
     }
 
     public void extractCommandLambda(CtLambda lambda){
@@ -82,7 +102,7 @@ public class CommandExtractor {
              System.out.println(commands.get(0)); // command to return
 
         } catch (Exception e) {
-            logr.log(Level.WARNING, "Problem identifying command of widget");
+            logr.log(Level.WARNING, "Cannot find command in lambda");
         }
     }
 
