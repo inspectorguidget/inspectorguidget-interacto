@@ -1,6 +1,6 @@
 package fr.inria.inspectorguidget.extractor;
 
-import org.malai.command.Command;
+import io.github.interacto.command.Command;
 
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
@@ -95,7 +95,7 @@ public class CommandExtractor {
                 }
             });
 
-             System.out.println(commands.get(0)); // command to return
+            System.out.println(commands.get(0)); // command to return
 
         } catch (Exception e) {
             logr.log(Level.WARNING, "Cannot find command in lambda");

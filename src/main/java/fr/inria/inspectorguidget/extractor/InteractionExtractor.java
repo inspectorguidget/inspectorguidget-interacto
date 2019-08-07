@@ -4,6 +4,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.path.CtRole;
+import spoon.reflect.reference.CtTypeReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +30,14 @@ public class InteractionExtractor {
         if(invoc.toString().startsWith("nodeBinder"))
             extractInteractionFromNodeBinder(invoc);
         else
-            System.out.println("not a nodeBinder, not done for the moment");
+            System.out.println("interaction is hidden");
 
     }
 
     public void extractInteraction(CtClass clazz){
-        System.out.println("Inter : not done for the moment");
+        CtTypeReference superClass  = clazz.getSuperclass();
+        CtTypeReference interaction = superClass.getActualTypeArguments().get(1); // the second arg is the interaction
+        System.out.println(interaction);
     }
 
     public void extractInteractionFromNodeBinder(CtInvocation invocation){

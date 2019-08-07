@@ -1,7 +1,7 @@
 package fr.inria.inspectorguidget.processor;
 
+import io.github.interacto.command.Command;
 import org.jetbrains.annotations.NotNull;
-import org.malai.command.CommandImpl;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.declaration.CtClass;
 
@@ -18,7 +18,7 @@ public class CommandProcessor extends AbstractProcessor<CtClass> {
 
     @Override
     public boolean isToBeProcessed(CtClass candidate){
-        return candidate.isSubtypeOf(getFactory().Type().createReference(CommandImpl.class));
+        return candidate.isSubtypeOf(getFactory().Type().createReference(Command.class));
     }
 
     @Override
