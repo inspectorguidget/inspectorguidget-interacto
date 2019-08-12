@@ -3,6 +3,7 @@ package fr.inria.inspectorguidget;
 import fr.inria.inspectorguidget.extractor.CommandExtractor;
 import fr.inria.inspectorguidget.extractor.InteractionExtractor;
 import fr.inria.inspectorguidget.processor.*;
+import io.github.interacto.jfx.instrument.JfxInstrument;
 import spoon.Launcher;
 import spoon.SpoonAPI;
 import spoon.reflect.code.CtInvocation;
@@ -35,17 +36,17 @@ public class Main {
         //extractCommand & interaction of a binder interaction
         for(CtInvocation invocation: binderInvocationProcessor.getNodeBinders()){
             interactionExtractor.extractInteraction(invocation);
-            commandExtractor.extractCommand(invocation);
+            //commandExtractor.extractCommand(invocation);
             System.out.println("-----------------------------");
         }
-
+/*
         //extractCommand, widget & interaction of a binder class
         for(CtClass clazz : binderClassProcessor.getListClass()){
             interactionExtractor.extractInteraction(clazz);
             commandExtractor.extractCommand(clazz);
             System.out.println("------------------------------");
         }
-
+*/
         return;
     }
 }

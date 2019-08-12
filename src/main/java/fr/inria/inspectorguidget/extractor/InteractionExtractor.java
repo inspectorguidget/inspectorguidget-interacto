@@ -1,10 +1,14 @@
 package fr.inria.inspectorguidget.extractor;
 
+import io.github.interacto.jfx.instrument.JfxInstrument;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.path.CtRole;
+import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.AbstractFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +34,7 @@ public class InteractionExtractor {
         if(invoc.toString().startsWith("nodeBinder"))
             extractInteractionFromNodeBinder(invoc);
         else
-            System.out.println("interaction is hidden");
+            extractInteractionfromBinder(invoc);
 
     }
 
@@ -52,5 +56,41 @@ public class InteractionExtractor {
         CtElement interaction = args.get(0); //first arg is interaction
         System.out.println("Inter : " + interaction);
     }
+
+    public CtElement extractInteractionfromBinder(CtInvocation invocation){
+
+        String invocationName = invocation.getExecutable().getSimpleName();
+        CtClass ctClass = invocation.getParent(new AbstractFilter<CtClass>() {
+            @Override
+            public boolean matches(CtClass element) {
+                return true;
+            }
+        });
+
+        CtTypeReference superClass = ctClass.getSuperclass();
+        while (superClass.getSimpleName().compareTo("JfxInstrument") != 0) {
+            superClass = superClass.getSuperclass();
+        }
+        CtExecutableReference method = null;
+        for (CtExecutableReference<?> execRef : superClass.getAllExecutables()) {
+            if(execRef.getSimpleName().compareTo(invocationName) == 0)
+                method = execRef;
+        }
+
+        if(method == null){
+            return null;
+        }
+
+        CtType binder = method.getType().getTypeDeclaration();
+        CtTypeReference binderClass  = binder.getSuperclass();
+        while (binderClass != null && binderClass.getSimpleName().compareTo("Binder") != 0) {
+            binderClass = binderClass.getSuperclass();
+        }
+        CtTypeReference interaction = binderClass.getActualTypeArguments().get(2); // the third arg is the interaction
+        System.out.println(interaction);
+
+        return interaction;
+    }
+
 
 }
