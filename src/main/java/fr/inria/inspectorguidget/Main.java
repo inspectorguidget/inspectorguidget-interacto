@@ -35,17 +35,17 @@ public class Main {
         InteractionExtractor interactionExtractor = new InteractionExtractor();
 
         //extractCommand & interaction of a binder interaction
-        CtElement interaction, command = null;
+        CtElement interaction, command;
         for(CtInvocation invocation: binderInvocationProcessor.getNodeBinders()){
             interaction = interactionExtractor.extractInteraction(invocation);
-            //command = commandExtractor.extractCommand(invocation);
+            command = commandExtractor.extractCommand(invocation);
             affiche(command, interaction);
         }
 
         //extractCommand, widget & interaction of a binder class
         for(CtClass clazz : binderClassProcessor.getListClass()){
             interaction = interactionExtractor.extractInteraction(clazz);
-            //commandExtractor.extractCommand(clazz);
+            command = commandExtractor.extractCommand(clazz);
             affiche(command, interaction);
         }
 

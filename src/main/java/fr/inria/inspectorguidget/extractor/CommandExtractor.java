@@ -21,7 +21,9 @@ public class CommandExtractor {
 
     public CommandExtractor(){}
 
-    public void extractCommand(CtInvocation invocation){
+    public CtElement extractCommand(CtInvocation invocation){
+
+        CtElement command = null; // command to be returned
 
         // get access to invocation nodeBinder()
         List<CtElement> children = invocation.getDirectChildren();
@@ -35,7 +37,7 @@ public class CommandExtractor {
         // Warning if the binder is anonCmdBinder, must extract the whole block in lambda
         assert invoc != null;
         if(invoc.getExecutable().getSimpleName().compareTo("anonCmdBinder") == 0){
-            extractAnonCmd(invoc);
+            command = extractAnonCmd(invoc);
         }
         else {
             // get Arguments of binder:
@@ -51,19 +53,21 @@ public class CommandExtractor {
 
             // CtLabmda or CtFieldRead (variable) or CtExecutableReferenceExpression
             if(supplier instanceof CtLambda)
-                extractCommandLambda((CtLambda) supplier);
+                command = extractCommandLambda((CtLambda) supplier);
             else if (supplier instanceof CtVariableReadImpl)
-                extractCommandVariable((CtVariableReadImpl) supplier);
+                command = extractCommandVariable((CtVariableReadImpl) supplier);
             else if(supplier instanceof  CtExecutableReferenceExpression)
-                extractCommandExecutable((CtExecutableReferenceExpression) supplier);
+                command = extractCommandExecutable((CtExecutableReferenceExpression) supplier);
             else{
                 logr.log(Level.WARNING, "not able to identify command");
             }
-
         }
+
+        return command;
     }
 
-    private void extractCommandExecutable(CtExecutableReferenceExpression expression){
+    private CtElement extractCommandExecutable(CtExecutableReferenceExpression expression){
+        CtElement command = null;
 
         boolean isCommand = false;
         for(CtTypeReference<?> typeRef : expression.getReferencedTypes())
@@ -73,13 +77,15 @@ public class CommandExtractor {
             }
 
         if(isCommand)
-            System.out.println(expression);
+            command = expression;
         else
             logr.log(Level.WARNING, "can't find command in expression");
+        return command;
     }
 
-    private void extractCommandLambda(CtLambda lambda){
+    private CtElement extractCommandLambda(CtLambda lambda){
 
+        CtElement command = null;
         List<CtConstructorCall> commands;
         try {
             commands = lambda.getElements(new AbstractFilter<CtConstructorCall>() {
@@ -95,15 +101,18 @@ public class CommandExtractor {
                 }
             });
 
-            System.out.println(commands.get(0)); // command to return
+            command = commands.get(0);
 
         } catch (Exception e) {
             logr.log(Level.WARNING, "Cannot find command in lambda");
         }
+
+        return command;
     }
 
-    private void extractCommandVariable(CtVariableReadImpl variable){
+    private CtElement extractCommandVariable(CtVariableReadImpl variable){
         CtMethod method = variable.getParent(CtMethod.class);
+        CtElement command = null;
         CtLambda lambda;
         try {
             lambda = method.getElements(new AbstractFilter<CtLambda>() {
@@ -116,14 +125,17 @@ public class CommandExtractor {
                     return varDef.getSimpleName().compareTo(variable.toString()) == 0;
                 }
             }).get(0);
-            extractCommandLambda(lambda);
+            command = extractCommandLambda(lambda);
         } catch (Exception e){
             logr.log(Level.WARNING,"Impossible to identify command");
         }
+
+        return command;
     }
 
-    public void extractCommand(CtClass clazz){
+    public CtElement extractCommand(CtClass clazz){
 
+        CtElement myCommand = null;
         //get all lambda within constructor
         List<CtLambda> lambdaList = clazz.getElements(new AbstractFilter<CtLambda>() {
             @Override
@@ -148,12 +160,15 @@ public class CommandExtractor {
         });
 
         if(lambdaList.size() == 1)
-            extractCommandLambda(lambdaList.get(0));
+            myCommand = extractCommandLambda(lambdaList.get(0));
         else
             logr.log(Level.WARNING, "unable to identify command in class");
+
+        return myCommand;
     }
 
-    private void extractAnonCmd(CtInvocation invocation){
+    private CtElement extractAnonCmd(CtInvocation invocation){
+
         List<CtLambda> lambdaList = invocation.getElements(new AbstractFilter<CtLambda>() {
             @Override
             public boolean matches(CtLambda element) {
@@ -171,7 +186,7 @@ public class CommandExtractor {
                 break;
             }
         }
-        System.out.println(command);
+        return command;
     }
 
     private boolean isACommand(CtTypeReference typeReference){
