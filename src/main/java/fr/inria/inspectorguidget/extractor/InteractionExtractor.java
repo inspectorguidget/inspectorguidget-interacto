@@ -82,14 +82,26 @@ public class InteractionExtractor {
         }
 
         CtType binder = method.getType().getTypeDeclaration();
+        /*
         CtTypeReference binderClass  = binder.getSuperclass();
         while (binderClass != null && binderClass.getSimpleName().compareTo("Binder") != 0) {
             binderClass = binderClass.getSuperclass();
         }
         CtTypeReference interaction = binderClass.getActualTypeArguments().get(2); // the third arg is the interaction
         System.out.println(interaction);
+        */
 
+        CtTypeReference interaction = extractArguments(binder.getReference(), "Binder", 2);
+        System.out.println(interaction);
         return interaction;
+    }
+
+    private CtTypeReference extractArguments(CtTypeReference refClass, String className, int position){
+
+        while (refClass != null && refClass.getSimpleName().compareTo(className) != 0) {
+            refClass = refClass.getSuperclass();
+        }
+        return refClass.getActualTypeArguments().get(position);
     }
 
 
