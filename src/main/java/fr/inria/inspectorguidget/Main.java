@@ -8,6 +8,7 @@ import spoon.Launcher;
 import spoon.SpoonAPI;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 
 public class Main {
 
@@ -34,19 +35,26 @@ public class Main {
         InteractionExtractor interactionExtractor = new InteractionExtractor();
 
         //extractCommand & interaction of a binder interaction
+        CtElement interaction, command = null;
         for(CtInvocation invocation: binderInvocationProcessor.getNodeBinders()){
-            interactionExtractor.extractInteraction(invocation);
-            //commandExtractor.extractCommand(invocation);
-            System.out.println("-----------------------------");
+            interaction = interactionExtractor.extractInteraction(invocation);
+            //command = commandExtractor.extractCommand(invocation);
+            affiche(command, interaction);
         }
-/*
+
         //extractCommand, widget & interaction of a binder class
         for(CtClass clazz : binderClassProcessor.getListClass()){
-            interactionExtractor.extractInteraction(clazz);
-            commandExtractor.extractCommand(clazz);
-            System.out.println("------------------------------");
+            interaction = interactionExtractor.extractInteraction(clazz);
+            //commandExtractor.extractCommand(clazz);
+            affiche(command, interaction);
         }
-*/
+
         return;
+    }
+
+    private static void affiche(CtElement command, CtElement interaction){
+        System.out.println("Command : " + command);
+        System.out.println("Interaction : " + interaction);
+        System.out.println("------------------------------");
     }
 }

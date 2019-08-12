@@ -20,7 +20,7 @@ public class InteractionExtractor {
 
     public InteractionExtractor(){}
 
-    public void extractInteraction(CtInvocation invocation){
+    public CtElement extractInteraction(CtInvocation invocation){
 
         // get access to invocation nodeBinder() or friend
         List<CtElement> children = invocation.getDirectChildren();
@@ -31,20 +31,22 @@ public class InteractionExtractor {
             children = invoc.getDirectChildren();
         }
 
+        CtElement interaction;
+
         if(invoc.toString().startsWith("nodeBinder"))
-            extractInteractionFromNodeBinder(invoc);
+            interaction = extractInteractionFromNodeBinder(invoc);
         else
-            extractInteractionfromBinder(invoc);
+            interaction = extractInteractionfromBinder(invoc);
 
+        return interaction;
     }
 
-    public void extractInteraction(CtClass clazz){
-        CtTypeReference superClass  = clazz.getSuperclass();
-        CtTypeReference interaction = superClass.getActualTypeArguments().get(1); // the second arg is the interaction
-        System.out.println(interaction);
+    public CtElement extractInteraction(CtClass clazz){
+        CtTypeReference interaction = extractArguments(clazz.getReference(), "JfXWidgetBinding", 1);
+        return interaction;
     }
 
-    public void extractInteractionFromNodeBinder(CtInvocation invocation){
+    public CtElement extractInteractionFromNodeBinder(CtInvocation invocation){
 
         List<CtElement> args = new ArrayList<>();
         for (CtElement child : invocation.getDirectChildren()){
@@ -54,7 +56,7 @@ public class InteractionExtractor {
         }
 
         CtElement interaction = args.get(0); //first arg is interaction
-        System.out.println("Inter : " + interaction);
+        return interaction;
     }
 
     public CtElement extractInteractionfromBinder(CtInvocation invocation){
@@ -82,17 +84,7 @@ public class InteractionExtractor {
         }
 
         CtType binder = method.getType().getTypeDeclaration();
-        /*
-        CtTypeReference binderClass  = binder.getSuperclass();
-        while (binderClass != null && binderClass.getSimpleName().compareTo("Binder") != 0) {
-            binderClass = binderClass.getSuperclass();
-        }
-        CtTypeReference interaction = binderClass.getActualTypeArguments().get(2); // the third arg is the interaction
-        System.out.println(interaction);
-        */
-
         CtTypeReference interaction = extractArguments(binder.getReference(), "Binder", 2);
-        System.out.println(interaction);
         return interaction;
     }
 
